@@ -16,29 +16,12 @@ fn read_input() -> Vec<u64> {
     line.split(' ').map(|s| s.parse().unwrap()).collect()
 }
 
-// fn simulate_step(stones: &Vec<u64>, memo: &mut HashMap<u64, Vec<u64>>) -> Vec<u64> {
-//     let mut res = Vec::new();
-//     for &stone in stones {
-//         res.extend_from_slice(memo.entry(stone).or_insert_with(|| {
-//             if stone == 0 {
-//                 vec![1]
-//             } else {
-//                 let str = stone.to_string();
-//                 if str.len() % 2 == 0 {
-//                     vec![
-//                         str[0..str.len() / 2].parse().unwrap(),
-//                         str[str.len() / 2..].parse().unwrap(),
-//                     ]
-//                 } else {
-//                     vec![stone * 2024]
-//                 }
-//             }
-//         }));
-//     }
-//     res
-// }
-
-fn simulate(stone: u64, memo1: &mut HashMap<u64, Vec<u64>>, memo2: &mut HashMap<(u64, u8), usize>, steps: u8) -> usize {
+fn simulate(
+    stone: u64,
+    memo1: &mut HashMap<u64, Vec<u64>>,
+    memo2: &mut HashMap<(u64, u8), usize>,
+    steps: u8,
+) -> usize {
     if steps == 0 {
         return 1;
     }
@@ -47,7 +30,8 @@ fn simulate(stone: u64, memo1: &mut HashMap<u64, Vec<u64>>, memo2: &mut HashMap<
         return res;
     }
     // println!("{stone}, {}, {steps}", memo1.len());
-    let next = memo1.entry(stone)
+    let next = memo1
+        .entry(stone)
         .or_insert_with(|| {
             if stone == 0 {
                 vec![1]
@@ -62,11 +46,16 @@ fn simulate(stone: u64, memo1: &mut HashMap<u64, Vec<u64>>, memo2: &mut HashMap<
                     vec![stone * 2024]
                 }
             }
-        }).clone();
-    let res = next.iter().map(|&s| simulate(s, memo1, memo2, steps - 1)).collect::<Vec<_>>().into_iter().sum();
+        })
+        .clone();
+    let res = next
+        .iter()
+        .map(|&s| simulate(s, memo1, memo2, steps - 1))
+        .collect::<Vec<_>>()
+        .into_iter()
+        .sum();
     memo2.insert((stone, steps), res);
     res
-
 }
 
 fn main() {
@@ -78,6 +67,11 @@ fn main() {
     for stone in stones {
         count += simulate(stone, &mut memo1, &mut memo2, 75);
     }
-    println!("{}ms, {}, {}", now.elapsed().as_millis(), memo1.len(), memo2.len());
+    println!(
+        "{}ms, {}, {}",
+        now.elapsed().as_millis(),
+        memo1.len(),
+        memo2.len()
+    );
     println!("{}", count);
 }
